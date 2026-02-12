@@ -40,6 +40,7 @@ add_library(${PROJECT_NAME} SHARED
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Object.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Rect.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/STrack.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/iou_utils.cpp
   )
 target_include_directories(${PROJECT_NAME} PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include
