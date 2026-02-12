@@ -97,7 +97,7 @@ void byte_track::STrack::updateClass(int new_class_id)
 
 void byte_track::STrack::activate(const size_t& frame_id, const size_t& track_id)
 {
-    kalman_filter_.initiate(mean_, covariance_, rect_.getXyah());
+    kalman_filter_.initiate(mean_, covariance_, rect_.getXyzolwh());
 
     updateRect();
 
@@ -114,7 +114,7 @@ void byte_track::STrack::activate(const size_t& frame_id, const size_t& track_id
 
 void byte_track::STrack::reActivate(const STrack &new_track, const size_t &frame_id, const int &new_track_id)
 {
-    kalman_filter_.update(mean_, covariance_, new_track.getRect().getXyah());
+    kalman_filter_.update(mean_, covariance_, new_track.getRect().getXyzolwh(), new_track.getScore());
 
     updateRect();
 
@@ -132,16 +132,12 @@ void byte_track::STrack::reActivate(const STrack &new_track, const size_t &frame
 
 void byte_track::STrack::predict()
 {
-    if (state_ != STrackState::Tracked)
-    {
-        mean_[7] = 0;
-    }
     kalman_filter_.predict(mean_, covariance_);
 }
 
 void byte_track::STrack::update(const STrack &new_track, const size_t &frame_id)
 {
-    kalman_filter_.update(mean_, covariance_, new_track.getRect().getXyah());
+    kalman_filter_.update(mean_, covariance_, new_track.getRect().getXyzolwh(), new_track.getScore());
 
     updateRect();
 
@@ -165,8 +161,11 @@ void byte_track::STrack::markAsRemoved()
 
 void byte_track::STrack::updateRect()
 {
-    rect_.width() = mean_[2] * mean_[3];
-    rect_.height() = mean_[3];
-    rect_.x() = mean_[0] - rect_.width() / 2;
-    rect_.y() = mean_[1] - rect_.height() / 2;
+    rect_.length() = mean_[4];
+    rect_.width() = mean_[5];
+    rect_.height() = mean_[6];
+    rect_.x() = mean_[0];
+    rect_.y() = mean_[1];
+    rect_.z() = mean_[2];
+    rect_.yaw() = mean_[3];
 }
