@@ -21,7 +21,8 @@ public:
                 const int& track_buffer = 30,
                 const float& track_thresh = 0.5,
                 const float& high_thresh = 0.6,
-                const float& match_thresh = 0.8);
+                const float& match_thresh = 0.8,
+                const bool& use_maj_cls = true);
     ~BYTETracker();
 
     std::vector<STrackPtr> update(const std::vector<Object>& objects);
@@ -64,6 +65,7 @@ private:
     const float high_thresh_;
     const float match_thresh_;
     const size_t max_time_lost_;
+    const bool use_majority_class_;
 
     size_t frame_id_;
     size_t track_id_count_;

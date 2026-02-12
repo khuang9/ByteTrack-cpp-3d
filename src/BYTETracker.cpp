@@ -12,11 +12,13 @@ byte_track::BYTETracker::BYTETracker(const int& frame_rate,
                                      const int& track_buffer,
                                      const float& track_thresh,
                                      const float& high_thresh,
-                                     const float& match_thresh) :
+                                     const float& match_thresh,
+                                     const bool& use_maj_cls) :
     track_thresh_(track_thresh),
     high_thresh_(high_thresh),
     match_thresh_(match_thresh),
     max_time_lost_(static_cast<size_t>(frame_rate / 30.0 * track_buffer)),
+    use_majority_class_(use_maj_cls),
     frame_id_(0),
     track_id_count_(0)
 {
@@ -37,7 +39,7 @@ std::vector<byte_track::BYTETracker::STrackPtr> byte_track::BYTETracker::update(
 
     for (const auto &object : objects)
     {
-        const auto strack = std::make_shared<STrack>(object.rect, object.prob);
+        const auto strack = std::make_shared<STrack>(object.rect, object.prob, object.label, use_majority_class_);
         if (object.prob >= track_thresh_)
         {
             det_stracks.push_back(strack);
