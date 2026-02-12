@@ -1,54 +1,47 @@
 #pragma once
 
 #include "Eigen/Dense"
+#include "ByteTrack/iou_utils.h"
 
 namespace byte_track
 {
 template<typename T>
-using Tlwh = Eigen::Matrix<T, 1, 4, Eigen::RowMajor>;
-
-template<typename T>
-using Tlbr = Eigen::Matrix<T, 1, 4, Eigen::RowMajor>;
-
-template<typename T>
-using Xyah = Eigen::Matrix<T, 1, 4, Eigen::RowMajor>;
+using Xyzolwh = Eigen::Matrix<T, 1, 7, Eigen::RowMajor>;
 
 template<typename T>
 class Rect
 {
     public:
-    Tlwh<T> tlwh;
+    Xyzolwh<T> xyzolwh;
 
     Rect() = default;
-    Rect(const T &x, const T &y, const T &width, const T &height);
+    Rect(const T &x, const T &y, const T &z, const T &yaw, const T &length, const T &width, const T &height);
 
     ~Rect();
 
     const T &x() const;
     const T &y() const;
+    const T &z() const;
+    const T &yaw() const;
+    const T &length() const;
     const T &width() const;
     const T &height() const;
 
     T &x();
     T &y();
+    T &z();
+    T &yaw();
+    T &length();
     T &width();
     T &height();
 
-    const T &tl_x() const;
-    const T &tl_y() const;
-    T br_x() const;
-    T br_y() const;
+    Xyzolwh<T> getXyzolwh() const;
 
-    Tlbr<T> getTlbr() const;
-    Xyah<T> getXyah() const;
-
+    // 3D IoU calcs
+    float minEnclosingBoxDiag(const Rect<T>& other) const;
+    float calcBEVIntersection(const Rect<T>& other) const;
     float calcIoU(const Rect<T>& other) const;
+    float calcDIoU(const Rect<T>& other) const;
+    float calcCIoU(const Rect<T>& other, float alpha = 0.3f) const;
 };
-
-template<typename T>
-Rect<T> generate_rect_by_tlbr(const Tlbr<T>& tlbr);
-
-template<typename T>
-Rect<T> generate_rect_by_xyah(const Xyah<T>& xyah);
-
 }

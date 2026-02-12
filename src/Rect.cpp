@@ -1,10 +1,11 @@
 #include "ByteTrack/Rect.h"
 
 #include <algorithm>
+#include <cmath>
 
 template <typename T>
-byte_track::Rect<T>::Rect(const T &x, const T &y, const T &width, const T &height) :
-    tlwh({x, y, width, height})
+byte_track::Rect<T>::Rect(const T &x, const T &y, const T &z, const T &yaw, const T &length, const T &width, const T &height) :
+    xyzolwh({x, y, z, yaw, length, width, height})
 {
 }
 
@@ -16,134 +17,181 @@ byte_track::Rect<T>::~Rect()
 template <typename T>
 const T& byte_track::Rect<T>::x() const
 {
-    return tlwh[0];
+    return xyzolwh[0];
 }
 
 template <typename T>
 const T& byte_track::Rect<T>::y() const
 {
-    return tlwh[1];
+    return xyzolwh[1];
+}
+
+template <typename T>
+const T& byte_track::Rect<T>::z() const
+{
+    return xyzolwh[2];
+}
+
+template <typename T>
+const T& byte_track::Rect<T>::yaw() const
+{
+    return xyzolwh[3];
+}
+
+template <typename T>
+const T& byte_track::Rect<T>::length() const
+{
+    return xyzolwh[4];
 }
 
 template <typename T>
 const T& byte_track::Rect<T>::width() const
 {
-    return tlwh[2];
+    return xyzolwh[5];
 }
 
 template <typename T>
 const T& byte_track::Rect<T>::height() const
 {
-    return tlwh[3];
+    return xyzolwh[6];
 }
 
 template <typename T>
 T& byte_track::Rect<T>::x()
 {
-    return tlwh[0];
+    return xyzolwh[0];
 }
 
 template <typename T>
 T& byte_track::Rect<T>::y()
 {
-    return tlwh[1];
+    return xyzolwh[1];
+}
+
+template <typename T>
+T& byte_track::Rect<T>::z()
+{
+    return xyzolwh[2];
+}
+
+template <typename T>
+T& byte_track::Rect<T>::yaw()
+{
+    return xyzolwh[3];
+}
+
+template <typename T>
+T& byte_track::Rect<T>::length()
+{
+    return xyzolwh[4];
 }
 
 template <typename T>
 T& byte_track::Rect<T>::width()
 {
-    return tlwh[2];
+    return xyzolwh[5];
 }
 
 template <typename T>
 T& byte_track::Rect<T>::height()
 {
-    return tlwh[3];
+    return xyzolwh[6];
 }
 
 template <typename T>
-const T& byte_track::Rect<T>::tl_x() const
-{
-    return tlwh[0];
-}
-
-template <typename T>
-const T& byte_track::Rect<T>::tl_y() const
-{
-    return tlwh[1];
-}
-
-template <typename T>
-T byte_track::Rect<T>::br_x() const
-{
-    return tlwh[0] + tlwh[2];
-}
-
-template <typename T>
-T byte_track::Rect<T>::br_y() const
-{
-    return tlwh[1] + tlwh[3];
-}
-
-template <typename T>
-byte_track::Tlbr<T> byte_track::Rect<T>::getTlbr() const
+byte_track::Xyzolwh<T> byte_track::Rect<T>::getXyzolwh() const
 {
     return {
-        tlwh[0],
-        tlwh[1],
-        tlwh[0] + tlwh[2],
-        tlwh[1] + tlwh[3],
+        xyzolwh[0],
+        xyzolwh[1],
+        xyzolwh[2],
+        xyzolwh[3],
+        xyzolwh[4],
+        xyzolwh[5],
+        xyzolwh[6],
     };
 }
 
-template <typename T>
-byte_track::Xyah<T> byte_track::Rect<T>::getXyah() const
+template<typename T>
+float byte_track::Rect<T>::minEnclosingBoxDiag(const Rect<T>& other) const
 {
-    return {
-        tlwh[0] + tlwh[2] / 2,
-        tlwh[1] + tlwh[3] / 2,
-        tlwh[2] / tlwh[3],
-        tlwh[3],
+    Box rrect{
+        Point{static_cast<double>(xyzolwh[0]), static_cast<double>(xyzolwh[1])},
+        static_cast<double>(xyzolwh[4]),
+        static_cast<double>(xyzolwh[5]),
+        static_cast<double>(xyzolwh[3])
     };
+    Box other_rrect{
+        Point{static_cast<double>(other.xyzolwh[0]), static_cast<double>(other.xyzolwh[1])},
+        static_cast<double>(other.xyzolwh[4]),
+        static_cast<double>(other.xyzolwh[5]),
+        static_cast<double>(other.xyzolwh[3])
+    };
+
+    float min_diag_sq = minAreaBoxDiagSquared(rrect, other_rrect);
+    float max_z = std::max(xyzolwh[2] + xyzolwh[6] / 2, other.xyzolwh[2] + other.xyzolwh[6] / 2);
+    float min_z = std::min(xyzolwh[2] - xyzolwh[6] / 2, other.xyzolwh[2] - other.xyzolwh[6] / 2);
+    float height = max_z - min_z;
+
+    return std::sqrt(min_diag_sq + height*height);
+}
+
+template<typename T>
+float byte_track::Rect<T>::calcBEVIntersection(const Rect<T>& other) const
+{
+    Box rrect{
+        Point{static_cast<double>(xyzolwh[0]), static_cast<double>(xyzolwh[1])},
+        static_cast<double>(xyzolwh[4]),
+        static_cast<double>(xyzolwh[5]),
+        static_cast<double>(xyzolwh[3])
+    };
+    Box other_rrect{
+        Point{static_cast<double>(other.xyzolwh[0]), static_cast<double>(other.xyzolwh[1])},
+        static_cast<double>(other.xyzolwh[4]),
+        static_cast<double>(other.xyzolwh[5]),
+        static_cast<double>(other.xyzolwh[3])
+    };
+
+    return boxIntersectArea(rrect, other_rrect);
 }
 
 template<typename T>
 float byte_track::Rect<T>::calcIoU(const Rect<T>& other) const
 {
-    const float box_area = (other.tlwh[2] + 1) * (other.tlwh[3] + 1);
-    const float iw = std::min(tlwh[0] + tlwh[2], other.tlwh[0] + other.tlwh[2]) - std::max(tlwh[0], other.tlwh[0]) + 1;
-    float iou = 0;
-    if (iw > 0)
-    {
-        const float ih = std::min(tlwh[1] + tlwh[3], other.tlwh[1] + other.tlwh[3]) - std::max(tlwh[1], other.tlwh[1]) + 1;
-        if (ih > 0)
-        {
-            const float ua = (tlwh[0] + tlwh[2] - tlwh[0] + 1) * (tlwh[1] + tlwh[3] - tlwh[1] + 1) + box_area - iw * ih;
-            iou = iw * ih / ua;
-        }
-    }
-    return iou;
+    float z_top = std::min(xyzolwh[6]/2, other.xyzolwh[6]/2);
+    float z_bot = std::max(-xyzolwh[6]/2, -other.xyzolwh[6]/2);
+    float z_inter = std::max(0.0f, z_top - z_bot);
+
+    float vol = xyzolwh[4] * xyzolwh[5] * xyzolwh[6];
+    float other_vol = other.xyzolwh[4] * other.xyzolwh[5] * other.xyzolwh[6];
+    float inter_vol = z_inter * calcBEVIntersection(other);
+    float union_vol = vol + other_vol - inter_vol;
+
+    if (union_vol <= 0.0f) return 0.0f;
+    else return inter_vol / union_vol;
 }
 
 template<typename T>
-byte_track::Rect<T> byte_track::generate_rect_by_tlbr(const byte_track::Tlbr<T>& tlbr)
+float byte_track::Rect<T>::calcDIoU(const Rect<T>& other) const
 {
-    return byte_track::Rect<T>(tlbr[0], tlbr[1], tlbr[2] - tlbr[0], tlbr[3] - tlbr[1]);
+    float dx = xyzolwh[0] - other.xyzolwh[0];
+    float dy = xyzolwh[1] - other.xyzolwh[1];
+    float dz = xyzolwh[2] - other.xyzolwh[2];
+    float d = std::sqrt(dx*dx + dy*dy + dz*dz);
+    float c = minEnclosingBoxDiag(other);
+    return calcIoU(other) - (d*d) / c*c;
 }
 
 template<typename T>
-byte_track::Rect<T> byte_track::generate_rect_by_xyah(const byte_track::Xyah<T>& xyah)
+float byte_track::Rect<T>::calcCIoU(const Rect<T>& other, float alpha) const
 {
-    const auto width = xyah[2] * xyah[3];
-    return byte_track::Rect<T>(xyah[0] - width / 2, xyah[1] - xyah[3] / 2, width, xyah[3]);
+    float theta_1 = std::atan2(xyzolwh[4], xyzolwh[5]) - std::atan2(other.xyzolwh[4], xyzolwh[5]);
+    float theta_2    = std::atan2(xyzolwh[4], xyzolwh[6]) - std::atan2(other.xyzolwh[4], xyzolwh[6]);
+    float pi = std::acos(-1.0);
+    float v = 2*(theta_1*theta_1 + theta_2*theta_2) / (pi*pi);
+    return calcDIoU(other) - alpha*v;
 }
 
 // explicit instantiation
 template class byte_track::Rect<int>;
 template class byte_track::Rect<float>;
-
-template byte_track::Rect<int> byte_track::generate_rect_by_tlbr<int>(const byte_track::Tlbr<int>&);
-template byte_track::Rect<float> byte_track::generate_rect_by_tlbr<float>(const byte_track::Tlbr<float>&);
-
-template byte_track::Rect<int> byte_track::generate_rect_by_xyah<int>(const byte_track::Xyah<int>&);
-template byte_track::Rect<float> byte_track::generate_rect_by_xyah<float>(const byte_track::Xyah<float>&);
