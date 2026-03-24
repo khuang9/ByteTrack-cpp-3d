@@ -75,6 +75,16 @@ const size_t& byte_track::STrack::getTrackletLength() const
     return tracklet_len_;
 }
 
+const KalmanFilter::StateMean& getMean() const
+{
+    return mean_;
+}
+
+const KalmanFilter::StateCov& getCov() const
+{
+    return covariance_;
+}
+
 void byte_track::STrack::updateClass(int new_class_id)
 {
     if (!use_majority_class_) {

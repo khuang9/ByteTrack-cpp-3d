@@ -32,6 +32,8 @@ public:
     const size_t& getFrameId() const;
     const size_t& getStartFrameId() const;
     const size_t& getTrackletLength() const;
+    const KalmanFilter::StateMean& getMean() const;
+    const KalmanFilter::StateCov& getCov() const;
 
     void updateClass(int new_class_id);
     void activate(const size_t& frame_id, const size_t& track_id);
