@@ -75,12 +75,12 @@ const size_t& byte_track::STrack::getTrackletLength() const
     return tracklet_len_;
 }
 
-const KalmanFilter::StateMean& getMean() const
+const byte_track::KalmanFilter::StateMean& byte_track::STrack::getMean() const
 {
     return mean_;
 }
 
-const KalmanFilter::StateCov& getCov() const
+const byte_track::KalmanFilter::StateCov& byte_track::STrack::getCov() const
 {
     return covariance_;
 }
