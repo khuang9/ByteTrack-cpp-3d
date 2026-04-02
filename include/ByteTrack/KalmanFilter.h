@@ -26,7 +26,7 @@ public:
 
     void initiate(StateMean& mean, StateCov& covariance, const DetectBox& measurement);
 
-    void predict(StateMean& mean, StateCov& covariance);
+    void predict(StateMean& mean, StateCov& covariance, float dt = 1.);
 
     float wrapAngle(float angle);
 

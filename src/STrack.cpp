@@ -142,9 +142,9 @@ void byte_track::STrack::reActivate(const STrack &new_track, const size_t &frame
     tracklet_len_ = 0;
 }
 
-void byte_track::STrack::predict()
+void byte_track::STrack::predict(float dt)
 {
-    kalman_filter_.predict(mean_, covariance_);
+    kalman_filter_.predict(mean_, covariance_, dt);
 }
 
 void byte_track::STrack::update(const STrack &new_track, const size_t &frame_id)

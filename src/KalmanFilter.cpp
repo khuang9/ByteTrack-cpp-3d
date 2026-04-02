@@ -40,8 +40,12 @@ void byte_track::KalmanFilter::initiate(StateMean &mean, StateCov &covariance, c
     covariance = tmp.asDiagonal();
 }
 
-void byte_track::KalmanFilter::predict(StateMean &mean, StateCov &covariance)
+void byte_track::KalmanFilter::predict(StateMean &mean, StateCov &covariance, float dt)
 {
+    // DEBUG: make sure these are valid index accesses (currently works for 10x10 motion_mat_)
+    // too lazy atm to make it safer
+    for (size_t i = 0; i < 3; i++) motion_mat_(i, 7 + i) = dt;
+
     // Matrix defaults follow AB3DMOT
     StateMean std;
     for (int i = 0; i < 7; ++i)

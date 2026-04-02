@@ -44,7 +44,7 @@ const std::unordered_map<std::string, byte_track::BYTETracker::DistFunc>& byte_t
     return dist_fn_map_;
 }
 
-std::vector<byte_track::BYTETracker::STrackPtr> byte_track::BYTETracker::update(const std::vector<Object>& objects)
+std::vector<byte_track::BYTETracker::STrackPtr> byte_track::BYTETracker::update(const std::vector<Object>& objects, float dt)
 {
     ////////////////// Step 1: Get detections //////////////////
     frame_id_++;
@@ -88,7 +88,7 @@ std::vector<byte_track::BYTETracker::STrackPtr> byte_track::BYTETracker::update(
     // Predict current pose by KF
     for (auto &strack : strack_pool)
     {
-        strack->predict();
+        strack->predict(dt);
     }
 
     ////////////////// Step 2: First association, with IoU //////////////////

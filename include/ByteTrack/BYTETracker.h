@@ -31,7 +31,7 @@ public:
                 const std::string& dist_metric = "IOU");
     ~BYTETracker();
 
-    std::vector<STrackPtr> update(const std::vector<Object>& objects);
+    std::vector<STrackPtr> update(const std::vector<Object>& objects, float dt = 1.);
     const std::unordered_map<std::string, DistFunc>& getAvailableMetrics() const;
 
 private:

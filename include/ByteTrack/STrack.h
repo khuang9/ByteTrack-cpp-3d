@@ -40,7 +40,7 @@ public:
     void activate(const size_t& frame_id, const size_t& track_id);
     void reActivate(const STrack &new_track, const size_t &frame_id, const int &new_track_id = -1);
 
-    void predict();
+    void predict(float dt = 1.);
     void update(const STrack &new_track, const size_t &frame_id);
 
     void markAsLost();
