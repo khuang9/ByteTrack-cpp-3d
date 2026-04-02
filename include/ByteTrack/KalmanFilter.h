@@ -22,9 +22,13 @@ public:
                  const float& alpha = 0.,
                  const float& beta = 2.);
 
+    static constexpr double pi = 3.141592653589793;
+
     void initiate(StateMean& mean, StateCov& covariance, const DetectBox& measurement);
 
     void predict(StateMean& mean, StateCov& covariance);
+
+    float wrapAngle(float angle);
 
     void update(StateMean& mean, StateCov& covariance, const DetectBox& measurement, const float& confidence);
 

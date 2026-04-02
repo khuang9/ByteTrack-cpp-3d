@@ -56,6 +56,14 @@ void byte_track::KalmanFilter::predict(StateMean &mean, StateCov &covariance)
     covariance = motion_mat_ * covariance * (motion_mat_.transpose()) + motion_cov;
 }
 
+float byte_track::KalmanFilter::wrapAngle(float angle) {
+    // Wrap angle into [-pi, pi]
+    angle = std::fmod(angle + byte_track::KalmanFilter::pi, 2 * byte_track::KalmanFilter::pi);
+    if (angle < 0)
+        angle += 2 * byte_track::KalmanFilter::pi;
+    return angle - byte_track::KalmanFilter::pi;
+}
+
 void byte_track::KalmanFilter::update(StateMean &mean, StateCov &covariance, const DetectBox &measurement, const float &confidence)
 {
     StateHMean projected_mean;
@@ -65,6 +73,9 @@ void byte_track::KalmanFilter::update(StateMean &mean, StateCov &covariance, con
     Eigen::Matrix<float, 7, 10> B = (covariance * (update_mat_.transpose())).transpose();
     Eigen::Matrix<float, 10, 7> kalman_gain = (projected_cov.llt().solve(B)).transpose();
     Eigen::Matrix<float, 1, 7> innovation = measurement - projected_mean;
+
+    // handle yaw differently (angle wraparound)
+    innovation(3) = wrapAngle(innovation(3));
 
     const auto tmp = innovation * (kalman_gain.transpose());
     mean = (mean.array() + tmp.array()).matrix();
