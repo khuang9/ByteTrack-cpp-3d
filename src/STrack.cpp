@@ -1,8 +1,9 @@
 #include "ByteTrack/STrack.h"
 
 #include <cstddef>
+#include <string>
 
-byte_track::STrack::STrack(const Rect<float>& rect, const float& score, const int& class_id, const bool& use_maj_cls, const bool& use_R_scaling) :
+byte_track::STrack::STrack(const Rect<float>& rect, const float& score, const std::string& class_id, const bool& use_maj_cls, const bool& use_R_scaling) :
     kalman_filter_(),
     mean_(),
     covariance_(),
@@ -47,11 +48,11 @@ const float& byte_track::STrack::getScore() const
 {
     return score_;
 }
-const int& byte_track::STrack::getClassId() const
+const std::string& byte_track::STrack::getClassId() const
 {
     return class_id_;
 }
-const std::unordered_map<int, int>& byte_track::STrack::getClassCount() const
+const std::unordered_map<std::string, int>& byte_track::STrack::getClassCount() const
 {
     return class_count_;
 }
@@ -86,7 +87,7 @@ const byte_track::KalmanFilter::StateCov& byte_track::STrack::getCov() const
     return covariance_;
 }
 
-void byte_track::STrack::updateClass(int new_class_id)
+void byte_track::STrack::updateClass(const std::string& new_class_id)
 {
     if (!use_majority_class_) {
         class_id_ = new_class_id;
