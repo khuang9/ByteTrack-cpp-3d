@@ -17,7 +17,7 @@ enum class STrackState {
 class STrack
 {
 public:
-    STrack(const Rect<float>& rect, const float& score, const int& class_id, const bool& use_maj_cls = true);
+    STrack(const Rect<float>& rect, const float& score, const int& class_id, const bool& use_maj_cls = true, const bool& use_R_scaling = false);
     ~STrack();
 
     const Rect<float>& getRect() const;

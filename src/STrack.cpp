@@ -2,7 +2,7 @@
 
 #include <cstddef>
 
-byte_track::STrack::STrack(const Rect<float>& rect, const float& score, const int& class_id, const bool& use_maj_cls) :
+byte_track::STrack::STrack(const Rect<float>& rect, const float& score, const int& class_id, const bool& use_maj_cls, const bool& use_R_scaling) :
     kalman_filter_(),
     mean_(),
     covariance_(),
@@ -17,6 +17,7 @@ byte_track::STrack::STrack(const Rect<float>& rect, const float& score, const in
     start_frame_id_(0),
     tracklet_len_(0)
 {
+    if (use_R_scaling) kalman_filter_.enable_R_scaling();
     class_count_[class_id] = 1;
 }
 

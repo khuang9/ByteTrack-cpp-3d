@@ -85,3 +85,13 @@ void byte_track::KalmanFilter::project(StateHMean &projected_mean, StateHCov &pr
     Eigen::Matrix<float, 7, 7> diag = (1 + alpha_*std::pow(1 - confidence, beta_)) * (std.asDiagonal());
     projected_covariance += diag.array().square().matrix();
 }
+
+void byte_track::KalmanFilter::enable_R_scaling()
+{
+    alpha_ = 1.;
+}
+
+void byte_track::KalmanFilter::disable_R_scaling()
+{
+    alpha_ = 0.;
+}

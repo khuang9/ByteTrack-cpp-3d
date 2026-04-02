@@ -15,7 +15,7 @@ class Rect
     Xyzolwh<T> xyzolwh;
 
     Rect() = default;
-    Rect(const T &x, const T &y, const T &z, const T &yaw, const T &length, const T &width, const T &height);
+    Rect(const T &x, const T &y, const T &z, const T &yaw, const T &length, const T &width, const T &height, const float &ciou_alpha = 0.3f);
 
     ~Rect();
 
@@ -42,6 +42,8 @@ class Rect
     float calcBEVIntersection(const Rect<T>& other) const;
     float calcIoU(const Rect<T>& other) const;
     float calcDIoU(const Rect<T>& other) const;
-    float calcCIoU(const Rect<T>& other, float alpha = 0.3f) const;
+    float calcCIoU(const Rect<T>& other) const;
+
+    float ciou_alpha_;
 };
 }

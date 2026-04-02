@@ -5,9 +5,12 @@
 #include "ByteTrack/Object.h"
 
 #include <cstddef>
+#include <functional>
 #include <limits>
 #include <map>
 #include <memory>
+#include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace byte_track
@@ -16,16 +19,20 @@ class BYTETracker
 {
 public:
     using STrackPtr = std::shared_ptr<STrack>;
+    using DistFunc = std::function<float(const byte_track::Rect<float>&, const byte_track::Rect<float>&)>;
 
     BYTETracker(const int& frame_rate = 30,
                 const int& track_buffer = 30,
                 const float& track_thresh = 0.5,
                 const float& high_thresh = 0.6,
                 const float& match_thresh = 0.8,
-                const bool& use_maj_cls = true);
+                const bool& use_maj_cls = true,
+                const bool& use_R_scaling = false,
+                const std::string& dist_metric = "IOU");
     ~BYTETracker();
 
     std::vector<STrackPtr> update(const std::vector<Object>& objects);
+    const std::unordered_map<std::string, DistFunc>& getAvailableMetrics() const;
 
 private:
     std::vector<STrackPtr> jointStracks(const std::vector<STrackPtr> &a_tlist,
@@ -66,9 +73,13 @@ private:
     const float match_thresh_;
     const size_t max_time_lost_;
     const bool use_majority_class_;
+    const bool use_R_scaling_;
 
     size_t frame_id_;
     size_t track_id_count_;
+
+    const std::unordered_map<std::string, DistFunc> dist_fn_map_;
+    DistFunc dist_fn_;
 
     std::vector<STrackPtr> tracked_stracks_;
     std::vector<STrackPtr> lost_stracks_;

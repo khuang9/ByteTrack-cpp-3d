@@ -5,6 +5,7 @@
 #include <map>
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -13,19 +14,34 @@ byte_track::BYTETracker::BYTETracker(const int& frame_rate,
                                      const float& track_thresh,
                                      const float& high_thresh,
                                      const float& match_thresh,
-                                     const bool& use_maj_cls) :
+                                     const bool& use_maj_cls,
+                                     const bool& use_R_scaling,
+                                     const std::string& dist_metric) :
     track_thresh_(track_thresh),
     high_thresh_(high_thresh),
     match_thresh_(match_thresh),
     max_time_lost_(static_cast<size_t>(frame_rate / 30.0 * track_buffer)),
     use_majority_class_(use_maj_cls),
+    use_R_scaling_(use_R_scaling),
     frame_id_(0),
-    track_id_count_(0)
+    track_id_count_(0),
+    dist_fn_map_({
+        {"IOU", [](const auto &rect, const auto &other){ return rect.calcIoU(other); }},
+        {"DIOU", [](const auto &rect, const auto &other){ return rect.calcDIoU(other); }},
+        {"CIOU", [](const auto &rect, const auto &other){ return rect.calcCIoU(other); }}
+    })
 {
+    auto it = dist_fn_map_.find(dist_metric);
+    dist_fn_ = (it != dist_fn_map_.end() ? it->second : dist_fn_map_.at("IOU"));
 }
 
 byte_track::BYTETracker::~BYTETracker()
 {
+}
+
+const std::unordered_map<std::string, byte_track::BYTETracker::DistFunc>& byte_track::BYTETracker::getAvailableMetrics() const
+{
+    return dist_fn_map_;
 }
 
 std::vector<byte_track::BYTETracker::STrackPtr> byte_track::BYTETracker::update(const std::vector<Object>& objects)
@@ -39,7 +55,7 @@ std::vector<byte_track::BYTETracker::STrackPtr> byte_track::BYTETracker::update(
 
     for (const auto &object : objects)
     {
-        const auto strack = std::make_shared<STrack>(object.rect, object.prob, object.label, use_majority_class_);
+        const auto strack = std::make_shared<STrack>(object.rect, object.prob, object.label, use_majority_class_, use_R_scaling_);
         if (object.prob >= track_thresh_)
         {
             det_stracks.push_back(strack);
@@ -394,7 +410,8 @@ std::vector<std::vector<float>> byte_track::BYTETracker::calcIous(const std::vec
     {
         for (size_t ai = 0; ai < a_rect.size(); ai++)
         {
-            ious[ai][bi] = b_rect[bi].calcIoU(a_rect[ai]);
+            // ious[ai][bi] = b_rect[bi].calcIoU(a_rect[ai]);
+            ious[ai][bi] = dist_fn_(b_rect[bi], a_rect[ai]);
         }
     }
     return ious;

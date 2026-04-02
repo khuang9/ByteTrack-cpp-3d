@@ -19,7 +19,7 @@ public:
 
     KalmanFilter(const float& std_weight_position = 1.,
                  const float& std_weight_velocity = 1.,
-                 const float& alpha = 1.,
+                 const float& alpha = 0.,
                  const float& beta = 2.);
 
     void initiate(StateMean& mean, StateCov& covariance, const DetectBox& measurement);
@@ -27,6 +27,10 @@ public:
     void predict(StateMean& mean, StateCov& covariance);
 
     void update(StateMean& mean, StateCov& covariance, const DetectBox& measurement, const float& confidence);
+
+    void enable_R_scaling();
+
+    void disable_R_scaling();
 
 private:
     float std_weight_position_;

@@ -4,8 +4,9 @@
 #include <cmath>
 
 template <typename T>
-byte_track::Rect<T>::Rect(const T &x, const T &y, const T &z, const T &yaw, const T &length, const T &width, const T &height) :
-    xyzolwh({x, y, z, yaw, length, width, height})
+byte_track::Rect<T>::Rect(const T &x, const T &y, const T &z, const T &yaw, const T &length, const T &width, const T &height, const float &ciou_alpha) :
+    xyzolwh({x, y, z, yaw, length, width, height}),
+    ciou_alpha_(ciou_alpha)
 {
 }
 
@@ -183,13 +184,13 @@ float byte_track::Rect<T>::calcDIoU(const Rect<T>& other) const
 }
 
 template<typename T>
-float byte_track::Rect<T>::calcCIoU(const Rect<T>& other, float alpha) const
+float byte_track::Rect<T>::calcCIoU(const Rect<T>& other) const
 {
     float theta_1 = std::atan2(xyzolwh[4], xyzolwh[5]) - std::atan2(other.xyzolwh[4], xyzolwh[5]);
     float theta_2    = std::atan2(xyzolwh[4], xyzolwh[6]) - std::atan2(other.xyzolwh[4], xyzolwh[6]);
     float pi = std::acos(-1.0);
     float v = 2*(theta_1*theta_1 + theta_2*theta_2) / (pi*pi);
-    return calcDIoU(other) - alpha*v;
+    return calcDIoU(other) - ciou_alpha_*v;
 }
 
 // explicit instantiation
