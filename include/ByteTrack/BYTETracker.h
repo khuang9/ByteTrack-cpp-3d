@@ -55,10 +55,12 @@ private:
                           std::vector<int> &a_unmatched) const;
 
     std::vector<std::vector<float>> calcIouDistance(const std::vector<STrackPtr> &a_tracks,
-                                                    const std::vector<STrackPtr> &b_tracks) const;
+                                                    const std::vector<STrackPtr> &b_tracks,
+                                                    const DistFunc &dist_fn) const;
 
     std::vector<std::vector<float>> calcIous(const std::vector<Rect<float>> &a_rect,
-                                             const std::vector<Rect<float>> &b_rect) const;
+                                             const std::vector<Rect<float>> &b_rect,
+                                             const DistFunc &dist_fn) const;
 
     double execLapjv(const std::vector<std::vector<float> > &cost,
                      std::vector<int> &rowsol,
