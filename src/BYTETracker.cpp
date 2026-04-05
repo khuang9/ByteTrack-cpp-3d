@@ -143,7 +143,7 @@ std::vector<byte_track::BYTETracker::STrackPtr> byte_track::BYTETracker::update(
         std::vector<int> unmatch_track_idx, unmatch_detection_idx;
 
         const auto dists = calcIouDistance(remain_tracked_stracks, det_low_stracks, dist_fn_);
-        linearAssignment(dists, remain_tracked_stracks.size(), det_low_stracks.size(), 0.5,
+        linearAssignment(dists, remain_tracked_stracks.size(), det_low_stracks.size(), match_thresh_/2,
                          matches_idx, unmatch_track_idx, unmatch_detection_idx);
 
         for (const auto &match_idx : matches_idx)
@@ -182,8 +182,8 @@ std::vector<byte_track::BYTETracker::STrackPtr> byte_track::BYTETracker::update(
         std::vector<std::vector<int>> matches_idx;
 
         // Deal with unconfirmed tracks, usually tracks with only one beginning frame
-        const auto dists = calcIouDistance(non_active_stracks, remain_det_stracks, dist_fn_map_.at("DIOU"));
-        linearAssignment(dists, non_active_stracks.size(), remain_det_stracks.size(), 1.5,
+        const auto dists = calcIouDistance(non_active_stracks, remain_det_stracks, dist_fn_);
+        linearAssignment(dists, non_active_stracks.size(), remain_det_stracks.size(), match_thresh_,
                          matches_idx, unmatch_unconfirmed_idx, unmatch_detection_idx);
 
         for (const auto &match_idx : matches_idx)
